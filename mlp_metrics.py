@@ -36,7 +36,15 @@ def main():
 
     motions_pred = model.predict(z_test)
     nn_metric = utils.nn(z_test, Y_test_flat, motions_pred, z_train, Y_train_flat)
-    print("NN score when comparing 3d motion representations: ", nn_metric)
+    print("NN score when comparing 3d motion representations (pose only):\t\t\t\t", nn_metric)
+
+    unique_motions_test = Y_test_flat[unique_filter(ids_test)==1]
+    motions_test_diversity = utils.diversity(unique_motions_test)
+    print("Diversity of test motions when comparing frames in 3d:\t\t\t\t", motions_test_diversity)
+
+    unique_motions_pred = motions_pred[unique_filter(ids_test)==1, :]
+    motions_pred_diversity = utils.diversity(unique_motions_pred)
+    print("Diversity of test motion predictions when comparing frames in 3d:\t\t", motions_pred_diversity)
 
     autoencoder=tf.keras.models.load_model(AUTOENCODER_PATH)
 
@@ -46,17 +54,12 @@ def main():
     encodings_pred = encoder.predict(tf.reshape(motions_pred, (motions_pred.shape[0], 200, NUM_JOINTS * COORDS )))
 
     nn_metric_encodings = utils.nn(X_test, encodings_test, encodings_pred, X_train, encodings_train )
-    print("NN score when comparing motion encodings: ", nn_metric_encodings)
-
-    unique_motions_test = Y_test_flat[unique_filter(ids_test)==1]
-    motions_test_diversity = utils.diversity(unique_motions_test)
-    print("Diversity of test motions when comparing frames in 3d:\t\t\t\t", motions_test_diversity)
+    print("NN score when comparing motion encodings:\t\t\t\t", nn_metric_encodings)
+   
     unique_encodings_test = encodings_test[unique_filter(ids_test)==1, :]
     encoding_diversity = utils.diversity(unique_encodings_test)
     print("Diversity of test motions when comparing encodings:\t\t\t\t", encoding_diversity)
-    unique_motions_pred = motions_pred[unique_filter(ids_test)==1, :]
-    motions_pred_diversity = utils.diversity(unique_motions_pred)
-    print("Diversity of test motion predictions when comparing frames in 3d:\t\t", motions_pred_diversity)
+
     unique_encodings_pred = encodings_pred[unique_filter(ids_test)==1, :]
     motions_pred_encoding_diversity = utils.diversity(unique_encodings_pred)
     print("Diversity of test motion predictions when comparing encodings:\t\t\t", motions_pred_encoding_diversity)

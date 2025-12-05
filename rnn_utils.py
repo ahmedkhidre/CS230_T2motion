@@ -19,16 +19,26 @@ def pose_loss_with_vel_fn(y_true, y_pred, use_velocity_loss, lambda_vel):
         return pos_loss + lambda_vel * vel_loss
     else:
         return pos_loss
-    
-def pose_loss_with_vel(use_velocity_loss, lambda_vel):
-    return lambda x, y : pose_loss_with_vel_fn(x, y, use_velocity_loss, lambda_vel)
 
-def make_time_indices_fn(z, motion_len):
-    batch_size = tf.shape(z)[0]
-    time_range = tf.range(motion_len, dtype=tf.int32)  # [T]
-    time_range = tf.expand_dims(time_range, axis=0)    # [1, T]
-    time_indices = tf.tile(time_range, [batch_size, 1])  # [B, T]
-    return time_indices
+@keras.saving.register_keras_serializable(package="Project")
+def pose_loss_with_vel(use_velocity_loss, lambda_vel):
+    @keras.saving.register_keras_serializable(package="Project")
+    def pose_loss_with_vel_fn(y_true, y_pred):
+        """
+        y_*: (B, T, J, 3)
+        MSE on pose + optional velocity loss on pose.
+        """
+        pos_loss = tf.reduce_mean(tf.square(y_true - y_pred))
+
+        if use_velocity_loss:
+            vel_true = y_true[:, 1:, :, :] - y_true[:, :-1, :, :]
+            vel_pred = y_pred[:, 1:, :, :] - y_pred[:, :-1, :, :]
+            vel_loss = tf.reduce_mean(tf.square(vel_true - vel_pred))
+            return pos_loss + lambda_vel * vel_loss
+        else:
+            return pos_loss
+    return pose_loss_with_vel_fn
+
 
 @keras.saving.register_keras_serializable(package="Project")
 def make_time_indices(motion_len):

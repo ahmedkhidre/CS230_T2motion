@@ -111,13 +111,12 @@ def main():
 
     if not FROM_SCRATCH and os.path.exists(SAVE_FULL_MODEL_PATH):
         print("Loading model (weights or full checkpoint)")
-        # model=tf.keras.models.load_model(SAVE_FULL_MODEL_PATH)
         model=tf.keras.models.load_model(SAVE_FULL_MODEL_PATH,
                                          custom_objects={'custom_loss': mlp_utils.custom_loss(MOTION_LEN, USE_VELOCITY_LOSS, LAMBDA_VEL)},
                                          safe_mode=False)
     else:
         print("training from scratch.")
-        model = utils.create_mlp(X_train.shape[1], HIDDEN_DIMS, OUTPUT_DIM)
+        model = mlp_utils.create_mlp(X_train.shape[1], HIDDEN_DIMS, OUTPUT_DIM)
         optimizer = AdamW(learning_rate=LEARNING_RATE,weight_decay=WEIGHT_DECAY) #<-- gradient clipping
         model.compile(optimizer=optimizer, loss=mlp_utils.custom_loss(MOTION_LEN, USE_VELOCITY_LOSS, LAMBDA_VEL), metrics=["mse"])
         pass  # do nothing, use existing model

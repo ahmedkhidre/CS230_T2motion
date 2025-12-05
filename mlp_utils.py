@@ -65,3 +65,13 @@ def custom_loss(motion_len, use_velocity_loss, lambda_vel):
             loss_val = mse
         return loss_val
     return custom_loss_fn
+
+def create_mlp(input_dim, hidden_dims, output_dim, activation='relu'):
+    inputs = tf.keras.Input(shape=(input_dim,), dtype=tf.float32, name="input")
+
+    x = inputs
+    for i, h in enumerate(hidden_dims):
+        x = tf.keras.layers.Dense(h, activation=activation, name=f"dense_{i+1}")(x)
+    outputs_flat = tf.keras.layers.Dense(output_dim, activation=None, name="output_flat")(x)
+    model = tf.keras.Model(inputs=inputs, outputs=outputs_flat, name="MLP")
+    return model

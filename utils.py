@@ -105,6 +105,10 @@ def filter_valid_motions(z_list, motions_list, ids_list=None,
         return np.array(valid_z, dtype=np.float32), valid_motions, None
     
 def animate_pose(pose, motion_id):
+    """
+    :param pose: A 3d motion. (T, J, 3)
+    :param motion_id: Description
+    """
     pose=copy.deepcopy(pose)
     #SMPL 22-joint skeleton
     edges = [
@@ -140,7 +144,9 @@ def animate_pose(pose, motion_id):
 
     ani = FuncAnimation(fig, update_lines, pose.shape[0], fargs=(pose, lines), interval=100)
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    ani.save(f'./animations/generate_{motion_id}_{timestamp}.mp4', writer = 'ffmpeg', fps = 30)
+    filename = f'./animations/generate_{motion_id}_{timestamp}.mp4'
+    ani.save(filename, writer = 'ffmpeg', fps = 30)
+    return filename
 
 
 def unique_filter(l):
