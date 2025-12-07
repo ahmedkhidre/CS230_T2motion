@@ -15,7 +15,6 @@ COORDS = 3
 
 POSE_ONLY = True
 MODEL_PATH = './models/mlp_pose_only/model.keras' if POSE_ONLY else './models/mlp/model.keras'
-AUTOENCODER_PATH = './models/autoencoder_pose_only/autoencoder.keras' if POSE_ONLY else './models/autoencoder/autoencoder.keras'
 USE_VELOCITY_LOSS = True
 LAMBDA_VEL = 1
 
@@ -45,25 +44,6 @@ def main():
     unique_motions_pred = motions_pred[unique_filter(ids_test)==1, :]
     motions_pred_diversity = utils.diversity(unique_motions_pred)
     print("Diversity of test motion predictions when comparing frames in 3d:\t\t", motions_pred_diversity)
-
-    autoencoder=tf.keras.models.load_model(AUTOENCODER_PATH)
-
-    encoder = autoencoder_utils.extract_encoder(autoencoder)
-    encodings_test = encoder.predict(tf.reshape(Y_test_flat, (Y_test_flat.shape[0], 200, NUM_JOINTS * COORDS )))
-    encodings_train = encoder.predict(tf.reshape(Y_train_flat, (Y_train_flat.shape[0], 200, NUM_JOINTS * COORDS )))
-    encodings_pred = encoder.predict(tf.reshape(motions_pred, (motions_pred.shape[0], 200, NUM_JOINTS * COORDS )))
-
-    nn_metric_encodings = utils.nn(X_test, encodings_test, encodings_pred, X_train, encodings_train )
-    print("NN score when comparing motion encodings:\t\t\t\t", nn_metric_encodings)
-   
-    unique_encodings_test = encodings_test[unique_filter(ids_test)==1, :]
-    encoding_diversity = utils.diversity(unique_encodings_test)
-    print("Diversity of test motions when comparing encodings:\t\t\t\t", encoding_diversity)
-
-    unique_encodings_pred = encodings_pred[unique_filter(ids_test)==1, :]
-    motions_pred_encoding_diversity = utils.diversity(unique_encodings_pred)
-    print("Diversity of test motion predictions when comparing encodings:\t\t\t", motions_pred_encoding_diversity)
-    pass
 
 if __name__ == '__main__':
     main()
