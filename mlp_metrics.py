@@ -1,7 +1,6 @@
 import tensorflow as tf
 import utils 
 
-import autoencoder_utils
 import mlp_utils
 
 from utils import unique_filter

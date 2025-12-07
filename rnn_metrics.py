@@ -2,7 +2,6 @@ import numpy as np
 import tensorflow as tf
 import utils 
 
-import autoencoder_utils
 import rnn_utils
 from utils import unique_filter
 
